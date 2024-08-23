@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="never" />
+    
+    <meta name="description" content="https://cuijiahua.com/blog/2018/01/dl_3.html 一、前言 LeNet-5出自论文Gradient-Based Learning Applied to Document Recognition，是一种用于手写体字符识别的非常高效的卷积神经网络。 本文将从卷积神" />
+    <meta property="og:description" content="https://cuijiahua.com/blog/2018/01/dl_3.html 一、前言 LeNet-5出自论文Gradient-Based Learning Applied to Document Recognition，是一种用于手写体字符识别的非常高效的卷积神经网络。 本文将从卷积神" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>网络解析（一）：LeNet-5详解 - 枫飞飞 - 博客园</title>
+    <link rel="canonical" href="https://www.cnblogs.com/fengff/p/10173071.html" />
+    <link rel="shortcut icon" id="favicon" href="//assets.cnblogs.com/favicon.svg?v=2" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=LYMmo6lbrNgi8DkLgJf9_TPlt-JiZpcgJen_8l1dZzk" />
+    
+
+    <link id="MainCss" rel="stylesheet" href="/skins/simpleclear/bundle-simpleclear.min.css?v=m4xkpf1YPhisOiHOMq-VCd3-AfAJrcLX6Xu_Ogp72Kk" />
+        <link id="highlighter-theme-cnblogs" type="text/css" rel="stylesheet" href="/css/hljs/cnblogs.css?v=5J1NDtbnnIr2Rc2SdhEMlMxD4l9Eydj88B31E7_NhS4" />
+    
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/simpleclear/bundle-simpleclear-mobile.min.css?v=ZqqYPHYmmUuoNhdGk3QO0R1SKsHzP1F4ukWh7776vLI" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/fengff/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/fengff/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/fengff/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 402490;
+        var currentBlogApp = 'fengff';
+        var isLogined = true;
+        var isBlogOwner = false;
+        var skinName = 'SimpleClear';
+        var visitorUserId = '41647ea5-ddc7-42be-cdb3-08dc5929970a';
+        var hasCustomScript = false;
+        window.cb_enable_mathjax = false;
+        window.mathEngine = 0;
+        window.codeHighlightEngine = 1;
+        window.enableCodeLineNumber = false;
+        window.codeHighlightTheme = 'cnblogs';
+        window.darkModeCodeHighlightTheme = 'vs2015';
+        window.isDarkCodeHighlightTheme = false;
+        window.isDarkModeCodeHighlightThemeDark = true;
+        window.isDisableCodeHighlighter = false;
+        window.enableCodeThemeTypeFollowSystem = false;
+        window.enableMacStyleCodeBlock = false;
+    </script>
+        <script>
+            window.currentPostId = 10173071;
+            window.currentPostDateAdded = '2018-12-25 11:49';
+        </script>
+    <script src="https://assets.cnblogs.com/scripts/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn-www.cnblogs.com/js/blog-common.min.js?v=rMyQ2-BcCldom7raGv1Ce6NKwDKGqSiclFx4jYGi3CQ"></script>
+    
+</head>
+<body class="skin-simpleclear has-navbar">
+    <a name="top"></a>
+        <div id="imagebar" class="imagebar-mobile imagebar-text-mobile formobile">
+                <a href="https://www.cnblogs.com/cmt/p/18358162" onclick="countCreativeClicks('M2-阿里云-RabbitMQ动手操作')" rel="nofollow">
+                    <img src="https://img2024.cnblogs.com/blog/35695/202408/35695-20240814123946727-902310043.jpg" alt="" onload="countCreativeImpressionsOnMobile('M2-阿里云-RabbitMQ动手操作')" />
+                    <span id="m2_impression" style="display:none"></span>
+                </a>
+        </div>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding">
+                    <a href="https://www.cnblogs.com/" title="开发者的网上家园" role="banner">
+                        <img src="//assets.cnblogs.com/logo.svg" alt="博客园Logo" />
+                    </a>
+                </li>
+                <li><a href="https://cnblogs.vip/">会员</a></li>
+                <li><a href="https://cnblogs.vip/store">周边</a></li>
+                <li><a href="https://www.cnblogs.com/cmt/articles/18197617">众包</a></li>
+                <li>
+                    <a href="https://news.cnblogs.com/" onclick="countClicks('nav', 'skin-navbar-news')">新闻</a>
+                </li>
+                <li>
+                    <a href="https://q.cnblogs.com/" onclick="countClicks('nav', 'skin-navbar-q')">博问</a>
+                </li>
+                <li>
+                    <a href="https://ing.cnblogs.com/" onclick="countClicks('nav', 'skin-navbar-ing')">闪存</a>
+                </li>
+                <li><a href="https://www.cnblogs.com/cmt/p/18341478">赞助商</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search dropdown" action="https://zzk.cnblogs.com/s" method="get" role="search">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="search" tabindex="3" autocomplete="off" />
+                        <button id="zzk_search_button" onclick="window.navbarSearchManager.triggerActiveOption()">
+                            <img id="search_icon" class="focus-hidden" src="//assets.cnblogs.com/icons/search.svg" alt="搜索" />
+                            <img class="hidden focus-visible" src="//assets.cnblogs.com/icons/enter.svg" alt="搜索" />
+                        </button>
+                        <ul id="navbar_search_options" class="dropdown-menu quick-search-menu">
+                            <li tabindex="0" class="active" onclick="zzkSearch(event, document.getElementById('zzk_search_input').value)">
+                                <div class="keyword-wrapper">
+                                    <img src="//assets.cnblogs.com/icons/search.svg" alt="搜索" />
+                                    <div class="keyword"></div>
+                                </div>
+                                <span class="search-area">所有博客</span>
+                            </li>
+                                    <li tabindex="1" onclick="zzkBlogSearch(event, 'fengff', document.getElementById('zzk_search_input').value)">
+                                        <div class="keyword-wrapper">
+                                            <img src="//assets.cnblogs.com/icons/search.svg" alt="搜索" />
+                                            <div class="keyword"></div>
+                                        </div>
+                                        <span class="search-area">当前博客</span>
+                                    </li>
+                        </ul>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="//assets.cnblogs.com/icons/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="//assets.cnblogs.com/icons/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="//assets.cnblogs.com/icons/message.svg" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <a id="navbar_lite_mode_indicator" data-current-page="blog" style="display: none" href="javascript:void(0)" alt="简洁模式" title="简洁模式启用，您在访问他人博客时会使用简洁款皮肤展示">
+                        <img class="navbar-icon" src="//assets.cnblogs.com/icons/lite-mode-on.svg" alt="简洁模式" />
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="//assets.cnblogs.com/icons/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+
+    <div id="main">
+    <div id="header">
+        
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/fengff">枫飞飞</a>
+</h1>
+<p id="tagline"></p>
+
+
+    </div>
+    <div id="post_detail">
+<div class="post">
+    <h2 class="postTitle"><a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/fengff/p/10173071.html" title="发布于 2018-12-25 11:49">
+    <span role="heading" aria-level="2">网络解析（一）：LeNet-5详解</span>
+    
+
+</a>
+</h2>
+    <div class="postText"><div id="cnblogs_post_body" class="blogpost-body blogpost-body-html">
+<h2>https://cuijiahua.com/blog/2018/01/dl_3.html</h2>
+<h2>一、前言</h2>
+<p><a title="查看与 LeNet-5 相关的文章" href="https://cuijiahua.com/blog/tag/lenet-5/" target="_blank" rel="noopener nofollow">LeNet-5</a>出自论文Gradient-Based Learning Applied to Document Recognition，是一种用于手写体字符识别的非常高效的卷积神经网络。</p>
+<p>本文将从卷积神经网络结构的基础说起，详细地讲解每个网络层。</p>
+<p>论文下载：请到<strong>文章结尾</strong>处下载。</p>
+<h2>二、卷积神经网络（Convolutional Neural Network, CNN）</h2>
+<p>在讲解<a title="查看与 LeNet-5 相关的文章" href="https://cuijiahua.com/blog/tag/lenet-5/" target="_blank" rel="noopener nofollow">LeNet-5</a>之前，让我们先看下CNN。卷积神经网络能够很好的利用图像的结构信息。LeNet-5是一个较简单的卷积神经网络。下图显示了其结构：输入的二维图像，先经过两次卷积层到池化层，再经过全连接层，最后使用softmax分类作为输出层。下面我们主要介绍卷积层和池化层。</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_1.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2394" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_1.png" alt="网络解析（一）：LeNet-5详解" width="1207" height="387" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_1.png"></a></p>
+<h3>1、卷积层</h3>
+<p>卷积层是卷积神经网络的核心基石。在图像识别里我们提到的卷积是二维卷积，即离散二维滤波器（也称作卷积核）与二维图像做卷积操作，简单的讲是二维滤波器滑动到二维图像上所有位置，并在每个位置上与该像素点及其领域像素点做内积。卷积操作被广泛应用与图像处理领域，不同卷积核可以提取不同的特征，例如边沿、线性、角等特征。在深层卷积神经网络中，通过卷积操作可以提取出图像低级到复杂的特征。</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_2.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2395" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_2.png" alt="网络解析（一）：LeNet-5详解" width="1509" height="1301" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_2.png"></a></p>
+<p>上图给出一个卷积计算过程的示例图，输入图像大小为H=5,W=5,D=3，即5×5大小的3通道（RGB，也称作深度）彩色图像。这个示例图中包含两（用K表示）组卷积核，即图中滤波器W0和W1。在卷积计算中，通常对不同的输入通道采用不同的卷积核，如图示例中每组卷积核包含（D=3）个3×3（用F×F表示）大小的卷积核。另外，这个示例中卷积核在图像的水平方向（W方向）和垂直方向（H方向）的滑动步长为2（用S表示）；对输入图像周围各填充1（用P表示）个0，即图中输入层原始数据为蓝色部分，灰色部分是进行了大小为1的扩展，用0来进行扩展。经过卷积操作得到输出为3×3×2（用Ho×Wo×K表示）大小的特征图，即3×3大小的2通道特征图，其中Ho计算公式为：Ho=(H−F+2×P)/S+1，Wo同理。 而输出特征图中的每个像素，是每组滤波器与输入图像每个特征图的内积再求和，再加上偏置bo，偏置通常对于每个输出特征图是共享的。输出特征图o[:,:,0]中的最后一个−2计算如上图右下角公式所示。</p>
+<p>记住这几个符号：</p>
+<ul>
+<li>H：图片高度；</li>
+<li>W：图片宽度；</li>
+<li>D：原始图片通道数，也是卷积核个数；</li>
+<li>F：卷积核高宽大小；</li>
+<li>P：图像边扩充大小；</li>
+<li>S：滑动步长。</li>
+</ul>
+<p>在卷积操作中卷积核是可学习的参数，经过上面示例介绍，每层卷积的参数大小为D×F×F×K。卷积层的参数较少，这也是由卷积层的主要特性即局部连接和共享权重所决定。</p>
+<ul>
+<li>局部连接：每个神经元仅与输入神经元的一块区域连接，这块局部区域称作感受野（receptive field）。在图像卷积操作中，即神经元在空间维度（spatial dimension，即上图示例H和W所在的平面）是局部连接，但在深度上是全部连接。对于二维图像本身而言，也是局部像素关联较强。这种局部连接保证了学习后的过滤器能够对于局部的输入特征有最强的响应。局部连接的思想，也是受启发于生物学里面的视觉系统结构，视觉皮层的神经元就是局部接受信息的。</li>
+<li>权重共享：计算同一个深度切片的神经元时采用的滤波器是共享的。例上图中计算o[:,:,0]的每个每个神经元的滤波器均相同，都为W0，这样可以很大程度上减少参数。共享权重在一定程度上讲是有意义的，例如图片的底层边缘特征与特征在图中的具体位置无关。但是在一些场景中是无意的，比如输入的图片是人脸，眼睛和头发位于不同的位置，希望在不同的位置学到不同的特征 。请注意权重只是对于同一深度切片的神经元是共享的，在卷积层，通常采用多组卷积核提取不同特征，即对应不同深度切片的特征，不同深度切片的神经元权重是不共享。另外，偏重对同一深度切片的所有神经元都是共享的。</li>
+</ul>
+<p>通过介绍卷积计算过程及其特性，可以看出卷积是线性操作，并具有平移不变性（shift-invariant），平移不变性即在图像每个位置执行相同的操作。卷积层的局部连接和权重共享使得需要学习的参数大大减小，这样也有利于训练较大卷积神经网络。</p>
+<p>整体计算过程如下（与上图中的数据不同，但是计算过程相同）：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_12.gif" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2871" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_12.gif" alt="网络解析（一）：LeNet-5详解" width="860" height="690" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_12.gif"></a></p>
+<h3>2、池化层</h3>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_3.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2401" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_3.png" alt="网络解析（一）：LeNet-5详解" width="1020" height="590" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_3.png"></a></p>
+<p>池化是非线性下采样的一种形式，主要作用是通过减少网络的参数来减小计算量，并且能够在一定程度上控制过拟合。通常在卷积层的后面会加上一个池化层。池化包括最大池化、平均池化等。其中最大池化是用不重叠的矩形框将输入层分成不同的区域，对于每个矩形框的数取最大值作为输出层，如上图所示。</p>
+<h2>三、Lenet-5</h2>
+<p>LeNet5 这个网络虽然很小，但是它包含了<a title="查看与 深度学习 相关的文章" href="https://cuijiahua.com/blog/tag/%e6%b7%b1%e5%ba%a6%e5%ad%a6%e4%b9%a0/" target="_blank" rel="noopener nofollow">深度学习</a>的基本模块：卷积层，池化层，全链接层。是其他深度学习模型的基础， 这里我们对LeNet5进行深入分析。同时，通过实例分析，加深对与卷积层和池化层的理解。</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_4.jpg" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2403" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_4.jpg" alt="网络解析（一）：LeNet-5详解" width="700" height="193" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_4.jpg"></a></p>
+<p>LeNet-5共<strong>有7层</strong>，不包含输入，每层都包含可训练参数；每个层有<strong>多个Feature Map</strong>，每个FeatureMap通过一种卷积滤波器提取输入的一种特征，然后每个FeatureMap有<strong>多个神经元。</strong></p>
+<p><strong>各层参数详解：</strong></p>
+<h3>1、INPUT层-输入层</h3>
+<p>首先是数据 INPUT 层，输入图像的尺寸统一归一化为32*32。</p>
+<p><strong>注意：本层不算LeNet-5的网络结构，传统上，不将输入层视为网络层次结构之一。</strong></p>
+<h3>2、C1层-卷积层</h3>
+<p>输入图片：32*32</p>
+<p>卷积核大小：5*5</p>
+<p>卷积核种类：6</p>
+<p>输出featuremap大小：28*28 （32-5+1）=28</p>
+<p>神经元数量：28*28*6</p>
+<p>可训练参数：（5*5+1) * 6（每个滤波器5*5=25个unit参数和一个bias参数，一共6个滤波器）</p>
+<p>连接数：（5*5+1）*6*28*28=122304</p>
+<p><strong>详细说明：</strong>对输入图像进行第一次卷积运算（使用 6 个大小为 5*5 的卷积核），得到6个C1特征图（6个大小为28*28的 feature maps, 32-5+1=28）。我们再来看看需要多少个参数，卷积核的大小为5*5，总共就有6*（5*5+1）=156个参数，其中+1是表示一个核有一个bias。对于卷积层C1，C1内的每个像素都与输入图像中的5*5个像素和1个bias有连接，所以总共有156*28*28=122304个连接（connection）。有122304个连接，但是我们只需要学习156个参数，主要是通过权值共享实现的。</p>
+<h3>3、S2层-池化层（下采样层）</h3>
+<p>输入：28*28</p>
+<p>采样区域：2*2</p>
+<p>采样方式：4个输入相加，乘以一个可训练参数，再加上一个可训练偏置。结果通过sigmoid</p>
+<p>采样种类：6</p>
+<p>输出featureMap大小：14*14（28/2）</p>
+<p>神经元数量：14*14*6</p>
+<p>连接数：（2*2+1）*6*14*14</p>
+<p>S2中每个特征图的大小是C1中特征图大小的1/4。</p>
+<p><strong>详细说明：</strong>第一次卷积之后紧接着就是池化运算，使用 2*2核 进行池化，于是得到了S2，6个14*14的 特征图（28/2=14）。S2这个pooling层是对C1中的2*2区域内的像素求和乘以一个权值系数再加上一个偏置，然后将这个结果再做一次映射。同时有5x14x14x6=5880个连接。</p>
+<h3>4、C3层-卷积层</h3>
+<p>输入：S2中所有6个或者几个特征map组合</p>
+<p>卷积核大小：5*5</p>
+<p>卷积核种类：16</p>
+<p>输出featureMap大小：10*10 (14-5+1)=10</p>
+<p>C3中的每个特征map是连接到S2中的所有6个或者几个特征map的，表示本层的特征map是上一层提取到的特征map的不同组合</p>
+<p>存在的一个方式是：C3的前6个特征图以S2中3个相邻的特征图子集为输入。接下来6个特征图以S2中4个相邻特征图子集为输入。然后的3个以不相邻的4个特征图子集为输入。最后一个将S2中所有特征图为输入。</p>
+<p>则：可训练参数：6*(3*5*5+1)+6*(4*5*5+1)+3*(4*5*5+1)+1*(6*5*5+1)=1516</p>
+<p>连接数：10*10*1516=151600</p>
+<p><strong>详细说明：</strong>第一次池化之后是第二次卷积，第二次卷积的输出是C3，16个10x10的特征图，卷积核大小是 5*5. 我们知道S2 有6个 14*14 的特征图，怎么从6 个特征图得到 16个特征图了？ 这里是通过对S2 的特征图特殊组合计算得到的16个特征图。具体如下：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_5.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2406" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_5.png" alt="网络解析（一）：LeNet-5详解" width="430" height="175" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_5.png"></a></p>
+<p>C3的前6个feature map（对应上图第一个红框的6列）与S2层相连的3个feature map相连接（上图第一个红框），后面6个feature map与S2层相连的4个feature map相连接（上图第二个红框），后面3个feature map与S2层部分不相连的4个feature map相连接，最后一个与S2层的所有feature map相连。卷积核大小依然为5*5，所以总共有6*(3*5*5+1)+6*(4*5*5+1)+3*(4*5*5+1)+1*(6*5*5+1)=1516个参数。而图像大小为10*10，所以共有151600个连接。</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_9.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2410" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_9.png" alt="网络解析（一）：LeNet-5详解" width="298" height="193" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_9.png"></a></p>
+<p>C3与S2中前3个图相连的卷积结构如下图所示：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_6.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2407" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_6.png" alt="网络解析（一）：LeNet-5详解" width="429" height="259" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_6.png"></a></p>
+<p>上图对应的参数为 3*5*5+1，一共进行6次卷积得到6个特征图，所以有6*（3*5*5+1）参数。 为什么采用上述这样的组合了？论文中说有两个原因：1）减少参数，2）这种不对称的组合连接的方式有利于提取多种组合特征。</p>
+<h3>5、S4层-池化层（下采样层）</h3>
+<p>输入：10*10</p>
+<p>采样区域：2*2</p>
+<p>采样方式：4个输入相加，乘以一个可训练参数，再加上一个可训练偏置。结果通过sigmoid</p>
+<p>采样种类：16</p>
+<p>输出featureMap大小：5*5（10/2）</p>
+<p>神经元数量：5*5*16=400</p>
+<p>连接数：16*（2*2+1）*5*5=2000</p>
+<p>S4中每个特征图的大小是C3中特征图大小的1/4</p>
+<p><strong>详细说明：</strong>S4是pooling层，窗口大小仍然是2*2，共计16个feature map，C3层的16个10x10的图分别进行以2x2为单位的池化得到16个5x5的特征图。有5x5x5x16=2000个连接。连接的方式与S2层类似。</p>
+<h3>6、C5层-卷积层</h3>
+<p>输入：S4层的全部16个单元特征map（与s4全相连）</p>
+<p>卷积核大小：5*5</p>
+<p>卷积核种类：120</p>
+<p>输出featureMap大小：1*1（5-5+1）</p>
+<p>可训练参数/连接：120*（16*5*5+1）=48120</p>
+<p><strong>详细说明：</strong>C5层是一个卷积层。由于S4层的16个图的大小为5x5，与卷积核的大小相同，所以卷积后形成的图的大小为1x1。这里形成120个卷积结果。每个都与上一层的16个图相连。所以共有(5x5x16+1)x120 = 48120个参数，同样有48120个连接。C5层的网络结构如下：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_7.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2408" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_7.png" alt="网络解析（一）：LeNet-5详解" width="332" height="315" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_7.png"></a></p>
+<h3>7、F6层-全连接层</h3>
+<p>输入：c5 120维向量</p>
+<p>计算方式：计算输入向量和权重向量之间的点积，再加上一个偏置，结果通过sigmoid函数输出。</p>
+<p>可训练参数:84*(120+1)=10164</p>
+<p><strong>详细说明：</strong>6层是全连接层。F6层有84个节点，对应于一个7x12的比特图，-1表示白色，1表示黑色，这样每个符号的比特图的黑白色就对应于一个编码。该层的训练参数和连接数是(120 + 1)x84=10164。ASCII编码图如下：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_8.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2409" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_8.png" alt="网络解析（一）：LeNet-5详解" width="371" height="193" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_8.png"></a></p>
+<p>F6层的连接方式如下：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_9.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2410" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_9.png" alt="网络解析（一）：LeNet-5详解" width="298" height="193" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_9.png"></a></p>
+<h3>8、Output层-全连接层</h3>
+<p>Output层也是全连接层，共有10个节点，分别代表数字0到9，且如果节点i的值为0，则网络识别的结果是数字i。采用的是径向基函数（RBF）的网络连接方式。假设x是上一层的输入，y是RBF的输出，则RBF输出的计算方式是：</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_10.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2411" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_10.png" alt="网络解析（一）：LeNet-5详解" width="171" height="61" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_10.png"></a></p>
+<p>上式w_ij 的值由i的比特图编码确定，i从0到9，j取值从0到7*12-1。RBF输出的值越接近于0，则越接近于i，即越接近于i的ASCII编码图，表示当前网络输入的识别结果是字符i。该层有84x10=840个参数和连接。</p>
+<p><a class="fancybox" href="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_11.png" data-fancybox-group="button" rel="noopener nofollow"><img class="aligncenter size-full wp-image-2412" src="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_11.png" alt="网络解析（一）：LeNet-5详解" width="532" height="407" data-original="https://cuijiahua.com/wp-content/uploads/2018/01/dl_3_11.png"></a></p>
+<p>上图是LeNet-5识别数字3的过程。</p>
+<h2>四、总结</h2>
+<ul>
+<li>LeNet-5是一种用于手写体字符识别的非常高效的卷积神经网络。</li>
+<li>卷积神经网络能够很好的利用图像的结构信息。</li>
+<li>卷积层的参数较少，这也是由卷积层的主要特性即局部连接和共享权重所决定。</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>参考资料：</strong></p>
+<p><a href="https://cuijiahua.com/wp-content/themes/begin/inc/go.php?url=http://blog.csdn.net/zhangjunhit/article/details/53536915" rel="noopener nofollow" target="_blank">http://blog.csdn.net/zhangjunhit/article/details/53536915</a></p>
+<p><a href="https://cuijiahua.com/wp-content/themes/begin/inc/go.php?url=https://www.jianshu.com/p/ce609f9b5910" rel="noopener nofollow" target="_blank">https://www.jianshu.com/p/ce609f9b5910</a></p>
+</div>
+<div class="clear"></div>
+<div id="blog_post_info_block" role="contentinfo">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div></div>
+    <p class="postfoot">posted on 
+<span id="post-date" data-last-update-days="2059.375443352161" data-date-created="BlogServer.Application.Dto.BlogPost.BlogPostDto" data-date-updated="2018-12-25 11:49">2018-12-25 11:49</span>&nbsp;
+<a href="https://www.cnblogs.com/fengff">枫飞飞</a>&nbsp;
+阅读(<span id="post_view_count">7614</span>)&nbsp;
+评论(<span id="post_comment_count">1</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=10173071" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(10173071);return false;">收藏</a>&nbsp;
+<a href="javascript:void(0)" onclick="reportManager.report({ currentUserId: '41647ea5-ddc7-42be-cdb3-08dc5929970a', targetType: 'blogPost', targetId: '10173071', targetLink: 'https://www.cnblogs.com/fengff/p/10173071.html', title: '网络解析（一）：LeNet-5详解' })">举报</a>
+</p>
+</div>
+
+
+<script>
+    var cb_entryId = 10173071, cb_entryCreatedDate = '2018-12-25 11:49', cb_postType = 1, cb_postTitle = '网络解析（一）：LeNet-5详解';
+    var allowComments = true, cb_blogId = 402490, cb_blogApp = 'fengff', cb_blogUserGuid = 'b9a7f88d-842b-46e8-51e2-08d52fc34315';
+    mermaidRender.render()
+    markdown_highlight()
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");    
+</script>
+<a id="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav">
+        <div class="comment-nav-right">
+            <span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a>
+        </div>
+    </div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+        <div id="cnblogs_ch"></div>
+    <div id="opt_under_post"></div>
+        <div id="blog_c1" class="under-post-card">
+            <a href="https://www.cnblogs.com/cmt/p/18356718" rel="nofollow" target="_blank" onclick="countCreativeClicks('C1-阿里云-Hologres动手操作')">
+                <img src="https://img2024.cnblogs.com/blog/35695/202408/35695-20240813180353098-2140851696.jpg" onload="countCreativeImpressions('C1-阿里云-Hologres动手操作')" alt="" />
+                <span id="c1_impression" style="display:none"></span>
+            </a>
+        </div>
+    <div id="under_post_card1"></div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+        var commentManager = new blogCommentManager();
+        commentManager.renderComments(0);
+        fixPostBody();
+        window.footnoteTipManager.generateFootnoteTips();
+
+            window.tocManager.displayDisableTocTips = false;
+            window.tocManager.generateToc();
+            
+                setTimeout(function() { countViews(cb_blogId, cb_entryId); }, 50);
+            
+            deliverT2();
+            deliverC1C2();
+            loadNewsAndKb();
+            
+                LoadPostCategoriesTags(cb_blogId, cb_entryId);
+            
+            LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+            GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+            loadOptUnderPost();
+            GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+                </script>
+</div>
+
+</div>
+
+
+</div>
+<div id="rightmenu">
+    
+<div id="my_links">
+<h3>导航</h3>
+<ul>
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/fengff/">
+首页</a>
+</li>
+
+<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%9E%AB%E9%A3%9E%E9%A3%9E">
+联系</a></li>
+<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/fengff/rss/">
+订阅</a></li><!--<partial name="./Shared/_XmlLink.cshtml" model="Model" />-->
+<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+</ul>
+</div>
+
+
+    <div id="calendar">
+        <div id="blog-calendar" style="display: none"></div>
+    </div>
+    <script>loadBlogDefaultCalendar();</script>
+    <div id="sidebar_news" class="newsItem">
+    <h3>公告</h3>
+<div class="newsItem">
+	<div id="blog-news">    
+    <div id="sidebar_news_content">
+    </div>
+</div>
+<script>loadBlogNews();</script>
+</div>
+
+ 
+</div>
+<div id="sidebar_c3"></div>
+    <div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+    <div id="blog-sidecolumn"></div>
+    <script>loadBlogSideColumn();</script>
+    <div id="footer">
+	Powered by: 
+	<br />
+	
+	<a href="https://www.cnblogs.com/" id="footer_site_link">博客园</a>
+	<br />
+	Copyright &copy; 2024 枫飞飞
+<br /><span id="poweredby">Powered by .NET 8.0 on Kubernetes</span>
+
+</div>
+
+
+</div>
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8ONv0caE5GtEh3YJ5j088klQXx4XvBbePtrnnhIzvJ8a_FLcqqHRGvARxNS0B7QYIOyic04VfUbPRHj8dzt4IQyT83ekLE2cRynUGzIItiDMuLQMunXDUS_KR2XsOyIsc_N37-2G9LSXuDzHiVbhe4cts_7smPWaBLH-iDyqHXihiqMlkdVLnlKtPCfBt3pauA" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M95P3TTWJZ"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-M95P3TTWJZ');
+</script>
+<script defer src="https://hm.baidu.com/hm.js?866c9be12d4a814454792b1fd0fed295"></script>
+</body>
+</html>
